@@ -1,0 +1,110 @@
+{
+  "build_time": "2026-08-22T19:32:27",
+  "source_root": "D:/AegisTraining",
+  "output_dir": "D:/PythonProject/aegis-psych-agent/training/data/consolidated_risk_v1",
+  "included_sources": {
+    "PsySUICIDE.train": "D:/AegisTraining/data/external/supplement/PsySUICIDE/train.json",
+    "PsySUICIDE.valid": "D:/AegisTraining/data/external/supplement/PsySUICIDE/valid.json",
+    "metaphor_corpus_v1": "D:/AegisTraining/data/external/supplement/metaphor_corpus_v1.jsonl",
+    "suicide_messages.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}.jsonl",
+    "suicide_csv.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}_LLM.csv",
+    "LSAN": "D:/AegisTraining/data/suicide/LSAN.csv"
+  },
+  "excluded_sources": {
+    "data/external/SupervisedVsLLM-EfficacyEval/*": "与 data/suicide 等副本重复，已通过跨文件去重覆盖，不重复读取",
+    "data/cognitive distortion/*": "认知歪曲 12 分类任务，非自杀风险识别，单独训练目标",
+    "data/SocialCD-3k/*": "同上（Social Cognition Distortion，认知歪曲任务）",
+    "distill_psychology-10k-r1.json": "心理咨询对话生成蒸馏集，无风险标签，属不同训练目标",
+    "data/risk_sft_v1|v2|v2_round2|v3": "项目 prepare 已派生的 SFT 集，避免重复计数"
+  },
+  "schema_per_sample": [
+    "id",
+    "text",
+    "risk_level",
+    "reason",
+    "source",
+    "source_detail",
+    "labels_raw",
+    "speaker_scope",
+    "metaphor_flag",
+    "split"
+  ],
+  "risk_level_mapping": {
+    "high": [
+      "主动自杀意图",
+      "用户攻击行为",
+      "自伤意图",
+      "自伤行为",
+      "自杀准备行为",
+      "自杀未遂",
+      "自杀计划",
+      "被动自杀意图"
+    ],
+    "medium": [
+      "关于自杀的探索"
+    ],
+    "low": [
+      "与自杀/自伤/攻击行为无关",
+      "他人攻击行为"
+    ]
+  },
+  "stats": {
+    "raw_loaded": 20109,
+    "after_invalid_filter": 20107,
+    "after_dedup": 14553,
+    "leak_dropped": 0,
+    "after_leakage_filter": 14553,
+    "invalid_dropped": 2,
+    "split_detail": {
+      "high": {
+        "total": 3746,
+        "train": 3371,
+        "test": 375
+      },
+      "low": {
+        "total": 10476,
+        "train": 9428,
+        "test": 1048
+      },
+      "medium": {
+        "total": 331,
+        "train": 298,
+        "test": 33
+      }
+    },
+    "train_total": 13097,
+    "test_total": 1456,
+    "train_level": {
+      "high": 3371,
+      "medium": 298,
+      "low": 9428
+    },
+    "test_level": {
+      "high": 375,
+      "medium": 33,
+      "low": 1048
+    },
+    "train_source": {
+      "psysuicide": 11988,
+      "suicide_messages": 1108,
+      "suicide_csv": 1
+    },
+    "test_source": {
+      "suicide_messages": 139,
+      "psysuicide": 1316,
+      "suicide_csv": 1
+    },
+    "train_metaphor": {
+      "metaphor": 266,
+      "explicit_or_other": 12831
+    },
+    "test_metaphor": {
+      "metaphor": 33,
+      "explicit_or_other": 1423
+    },
+    "holdout_size": 25,
+    "leak_threshold": 0.82,
+    "seed": 42,
+    "test_ratio": 0.1
+  }
+}

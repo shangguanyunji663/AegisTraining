@@ -1,1 +1,93 @@
-.envs\*
+# Python caches and test artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local environments and dependency caches
+.venv/
+.venv_*/
+.conda/
+.env/
+.envs/
+envs/
+/envs/
+models/
+/models/
+hf-cache/
+/hf-cache/
+uv.lock
+.uv/
+.pip-cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+
+# Training data and generated datasets
+/data/
+/data/**
+/distill_psychology-10k-r1.json
+training/data/generated/
+training/data/derived/
+training/data/*/train.jsonl
+training/data/*/dev.jsonl
+training/data/*/test.jsonl
+training/data/*/manifest.json
+*.jsonl
+*.tsv
+*.csv
+*.docx
+
+# Model weights and training artifacts
+/models/
+/checkpoints/
+/exports/
+*.safetensors
+*.safetensors.index.json
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.gguf
+*.pkl
+*.pickle
+
+# Generated reports, logs and temporary output
+/reports/*.log
+/reports/*.json
+/reports/*.html
+/reports/*.txt
+/reports/*.md
+*.log
+*.out
+*.err
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Keep only intentionally curated documentation and summaries under reports.
+!/reports/TRAINING-HISTORY-INDEX.md
+!/reports/*-TRAINING-EVAL-SUMMARY.md
+
+# IDE and local assistant state
+.vscode/
+.idea/
+.zcode/
+.mimosa/
+.workbuddy/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

@@ -1,0 +1,4 @@
+# 大数据文件不纳入 git
+*.jsonl
+*.json
+!manifest.json
