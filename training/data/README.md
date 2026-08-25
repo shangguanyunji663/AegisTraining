@@ -42,6 +42,15 @@
 - `risk.json`、`routing.json`、`multi_turn_corpus.json`、`safety.json`、`tests/`、RAG fixtures、Harness、probe、风险政策文档和高风险 Skill 均不作为训练语料。
 - `stress` holdout 可用于最终风险分数，但并非独立盲测集：其中的合成表达与仓库规则/测试存在共同设计背景。生产结论仍需额外的外部、专家审阅且完全隔离的测试集。
 
-## 数据规模目标
+## 数据规模与版本
 
-第一版构建为 720 条 train + 120 条 dev，三类标签尽量均衡。当前 v2 候选池由用户指定的公开数据与 63 条项目 `base` 开发样本组成；数据质量以 manifest 的 `label_method` 和 `review_status` 为准。
+早期版本是 720 条 train + 120 条 dev，三类标签尽量均衡；这些数字只用于历史复现。当前推荐流程不是直接训练早期数据，而是：
+
+```text
+consolidated_risk_v1
+  -> prepare_risk_sft_v4.py
+  -> risk_sft_v9: 2867 train / 200 dev / 1414 devtest
+  -> train_risk_qlora.py
+```
+
+`risk_sft_v9` 的最终规模、类别分布、重标摘要、泄漏拒绝和来源以 `data/risk_sft_v9/manifest.json` 为准；数据质量以 manifest 的 `label_method`、`review_status` 和审计记录为准。

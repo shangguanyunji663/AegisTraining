@@ -44,7 +44,9 @@ set AEGIS_PROJECT_CORPUS=%AEGIS_PROJECT_ROOT%\eval\fixtures\representative_corpu
 - `AEGIS_TRAINING_ROOT`：训练仓库 checkout 和本地训练工件根目录。
 - `AEGIS_PROJECT_ROOT`：可选的生产仓库 checkout；只读其已提交的评测 fixture。
 - `AEGIS_PROJECT_CORPUS`：可选的版本化评测语料路径。也可以直接通过 `--corpus` 传入。
-- `external-data/`：本地外部数据 checkout（被忽略，不属于当前 v4 主流程的直接输入）。
+- `external-data/`：本地外部数据 checkout（被忽略，不属于当前 v9 主流程的直接输入）。
+
+完整的当前 v9 操作、参数、评测和发布流程以 [`training/README.md`](training/README.md) 为准；复现证据要求见 [`training/docs/REPRODUCIBILITY.md`](training/docs/REPRODUCIBILITY.md)，推理服务边界见 [`training/docs/SERVICE-RUNBOOK.md`](training/docs/SERVICE-RUNBOOK.md)。
 - 模型、checkpoint、导出文件和报告应放在训练根目录下的被忽略目录中。
 
 如果训练仓库和生产仓库不在同一台机器上，请把需要的、已经审查的 fixture 作为版本化契约或脱敏副本提供给训练流程；不要写死本机路径。
@@ -64,7 +66,9 @@ PyTorch/CUDA wheel 应按本机驱动和 CUDA 版本从官方渠道单独安装�
 
 ## 常用入口
 
-准备第一版候选数据（示例路径均可替换）：
+> 本节只保留最短入口。完整命令、参数解释、dry-run 检查、冻结集评测、devtest、发布和回滚请以 [`training/README.md`](training/README.md) 为准。
+
+准备第一版候选数据（仅用于 legacy 复现，当前推荐流程不使用）：
 
 ```bat
 python training\scripts\prepare_risk_sft.py ^
@@ -92,8 +96,11 @@ python training\scripts\train_risk_qlora.py ^
 
 python training\scripts\train_risk_qlora.py ^
   --data-root "%AEGIS_TRAINING_ROOT%\data\risk_sft_v9" ^
-  --snapshot-dir "%AEGIS_TRAINING_ROOT%\models\Qwen3.5-2B-Base"
+  --snapshot-dir "%AEGIS_TRAINING_ROOT%\models\Qwen3.5-2B-Base" ^
+  --output-root "%AEGIS_TRAINING_ROOT%\checkpoints\aegis-risk-qwen3.5-2b-v9"
 ```
+
+必须显式传入版本化 `--output-root`；配置文件默认目录不包含 `v9` 版本号，不能直接与下面的 merge 路径混用。
 
 合并 adapter 时使用新的、空的、版本化输出目录：
 
@@ -113,6 +120,17 @@ python training\scripts\serve_risk_qlora.py ^
 ```
 
 该服务的 `127.0.0.1` 监听仅用于隔离环境的本机 smoke test。生产应用的服务端 URL 校验只允许 `http/https`，并拒绝 `localhost`、环回、私有和保留地址；生产部署应使用经过审批的、可达且受保护的公网 HTTPS endpoint，不能把本地训练服务直接暴露给生产应用。
+
+## 文档索引
+
+- [训练主手册：参数、流程、评测、服务和回滚](training/README.md)
+- [可复现与证据记录规范](training/docs/REPRODUCIBILITY.md)
+- [QLoRA 推理服务运行手册](training/docs/SERVICE-RUNBOOK.md)
+- [数据契约](training/data/README.md)
+- [模型发布记录模板](docs/MODEL-RELEASES.md)
+- [v9 发布记录（当前 release-candidate）](docs/V9-RELEASE-RECORD.md)
+- [训练谱系和版本映射](reports/TRAINING-HISTORY-INDEX.md)
+- [v9 验收摘要](reports/V9-TRAINING-EVAL-SUMMARY.md)
 
 ## 模型发布
 

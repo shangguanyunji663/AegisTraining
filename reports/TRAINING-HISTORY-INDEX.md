@@ -16,7 +16,7 @@
 | 第四版 | v5 | risk_sft_v5 | checkpoints\...-v5、exports\...-v5-merged（已清理） | `V5-TRAINING-EVAL-SUMMARY.md` | **八门槛全部通过（历史首次）**：FPR 0（零误升级）、隐喻 +8、P95 0.93s |
 | 第五版 | v7 | risk_sft_v7 | checkpoints\...-v7、exports\...-v7-merged（已清理） | 原始 JSON 未随仓库保留；结论保留于版本谱系 | 7/8：第三人称 0.55→0.82、medium 召回 0.29→0.77；但 FPR 复发（corp-084/091 自我否定误升级） |
 | 第六版 | v8 | risk_sft_v8 | checkpoints\...-v8、exports\...-v8-merged（已清理） | 原始 JSON 未随仓库保留；结论保留于版本谱系 | 7/8：acc 0.782、第三人称 0.91、medium 0.71；同样卡 corp-084/091 |
-| **第七版** | **v9** | **risk_sft_v9（提示词 v2）** | checkpoints\...-v9、exports\...-v9-merged（已清理） | `V9-TRAINING-EVAL-SUMMARY.md`；原始 JSON 未随仓库保留 | ✅ **八门槛全过 + 全指标最优**：FPR 0、corp-084/091 修复、medium 召回 0.88、acc 0.782、第三人称 0.82、隐喻 +6 |
+| **第七版** | **v9** | **risk_sft_v9（提示词 v2）** | checkpoints\...-v9、exports\...-v9-merged（已清理） | [`V9-TRAINING-EVAL-SUMMARY.md`](V9-TRAINING-EVAL-SUMMARY.md)；[`V9-RELEASE-RECORD.md`](../docs/V9-RELEASE-RECORD.md)；原始 JSON 待归档 | ✅ **八门槛全过 + 全指标最优**：FPR 0、corp-084/091 修复、medium 召回 0.88、acc 0.782、第三人称 0.82、隐喻 +6；发布状态为 `release-candidate` |
 
 ## 提示词契约变更记录（方案 B，2026-08-24）
 
