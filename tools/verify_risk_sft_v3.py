@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
 
-PROJECT_ROOT = Path(r"D:\PythonProject\aegis-psych-agent")
-TRAINING_SRC = PROJECT_ROOT / "training" / "src"
+TRAINING_ROOT = Path(os.environ.get("AEGIS_TRAINING_ROOT", Path(__file__).resolve().parents[1])).resolve()
+PROJECT_ROOT = Path(os.environ.get("AEGIS_PROJECT_ROOT", r"D:\PythonProject\aegis-psych-agent")).resolve()
+TRAINING_SRC = TRAINING_ROOT / "training" / "src"
 if str(TRAINING_SRC) not in sys.path:
     sys.path.insert(0, str(TRAINING_SRC))
 
@@ -28,7 +30,7 @@ from aegis_training.data_contract import (  # noqa: E402
 )
 from aegis_training.leakage_guard import scan_final_holdout_leakage  # noqa: E402
 
-DATA_ROOT = Path(r"D:\AegisTraining\data\risk_sft_v3")
+DATA_ROOT = TRAINING_ROOT / "data" / "archive" / "risk_sft_v3"
 LEAKED_IDS = {
     "synthetic-implicit-wish_never_born-1",
     "synthetic-implicit-disappear_better-1",

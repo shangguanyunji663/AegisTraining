@@ -18,15 +18,16 @@
 
 ```text
 .
+├── external-data/                # 被忽略的外部数据 checkout（仅供旧流程/重建工具使用）
 ├── training/
 │   ├── src/aegis_training/       # 数据契约、泄漏检查、指标和路径工具
 │   ├── scripts/                  # 数据准备、训练、合并、评测和推理服务入口
 │   ├── configs/                  # 可复现实验配置
 │   ├── data/                     # 仅保留契约/说明/经审查的小型样例
 │   └── requirements-qlora.txt    # 与生产依赖隔离的 GPU 训练依赖
-├── tools/                        # 历史数据检查和验证工具
+├── tools/                        # legacy/v3 检查工具；当前入口见 training/scripts/
 ├── docs/                         # 数据审计、训练协议和模型发布记录
-├── reports/                      # 只保留轻量、经审查的摘要
+├── reports/                      # 唯一报告目录，只保留轻量、经审查的摘要
 └── .gitignore
 ```
 
@@ -43,6 +44,7 @@ set AEGIS_PROJECT_CORPUS=%AEGIS_PROJECT_ROOT%\eval\fixtures\representative_corpu
 - `AEGIS_TRAINING_ROOT`：训练仓库 checkout 和本地训练工件根目录。
 - `AEGIS_PROJECT_ROOT`：可选的生产仓库 checkout；只读其已提交的评测 fixture。
 - `AEGIS_PROJECT_CORPUS`：可选的版本化评测语料路径。也可以直接通过 `--corpus` 传入。
+- `external-data/`：本地外部数据 checkout（被忽略，不属于当前 v4 主流程的直接输入）。
 - 模型、checkpoint、导出文件和报告应放在训练根目录下的被忽略目录中。
 
 如果训练仓库和生产仓库不在同一台机器上，请把需要的、已经审查的 fixture 作为版本化契约或脱敏副本提供给训练流程；不要写死本机路径。
@@ -66,9 +68,9 @@ PyTorch/CUDA wheel 应按本机驱动和 CUDA 版本从官方渠道单独安装�
 
 ```bat
 python training\scripts\prepare_risk_sft.py ^
-  --source-root "%AEGIS_TRAINING_ROOT%\data\external\SupervisedVsLLM-EfficacyEval" ^
+  --source-root "%AEGIS_TRAINING_ROOT%\external-data\SupervisedVsLLM-EfficacyEval" ^
   --project-root "%AEGIS_PROJECT_ROOT%" ^
-  --output-root "%AEGIS_TRAINING_ROOT%\data\risk_sft_v2"
+  --output-root "%AEGIS_TRAINING_ROOT%\data\archive\risk_sft_v2"
 ```
 
 准备当前审计版本的数据，并显式指定冻结评测语料：

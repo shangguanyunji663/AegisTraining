@@ -2,12 +2,13 @@
 """
 consolidated_risk_v1 构建脚本
 ================================
-目标：将 D:/AegisTraining 下「心理健康/自杀风险识别」相关的杂乱原始数据，
+目标：将配置的训练根目录下「心理健康/自杀风险识别」相关的杂乱原始数据，
 统一清洗、去重、格式化，并按 90/10 分层划分为训练集与测试集，
 输出到本项目下的独立文件夹，供后续 QLoRA 训练直接使用。
 
 设计约束（来自项目既有约定）：
-1. 只读 D:\AegisTraining，绝不修改/删除其中任何文件。
+    1. 只读训练根目录，绝不修改/删除其中任何文件。
+
 2. 与 25 条冻结验收集（corp-106..130, category=suicidal_implicit）保持零泄漏：
    任何与其字符 3-gram Jaccard >= 0.82 的样本都会被剔除。
 3. 跨副本去重：data/suicide/* 与外部仓库副本指向同一来源，按归一化文本去重。
@@ -24,9 +25,19 @@ consolidated_risk_v1 构建脚本
 from __future__ import annotations
 import json, csv, re, os, hashlib, collections, datetime
 
-SRC_ROOT = "D:/AegisTraining"
-OUT_DIR  = "D:/PythonProject/aegis-psych-agent/training/data/consolidated_risk_v1"
-PROJECT_CORPUS = "D:/PythonProject/aegis-psych-agent/eval/fixtures/representative_corpus.json"
+CHECKOUT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+SRC_ROOT = os.environ.get("AEGIS_TRAINING_ROOT", CHECKOUT_ROOT)
+PROJECT_ROOT = os.environ.get("AEGIS_PROJECT_ROOT")
+PROJECT_CORPUS = os.environ.get("AEGIS_PROJECT_CORPUS")
+if not PROJECT_CORPUS and PROJECT_ROOT:
+    PROJECT_CORPUS = os.path.join(PROJECT_ROOT, "eval", "fixtures", "representative_corpus.json")
+if not PROJECT_CORPUS:
+    raise RuntimeError("set AEGIS_PROJECT_CORPUS or AEGIS_PROJECT_ROOT before building consolidated data")
+OUT_DIR = os.environ.get(
+    "AEGIS_CONSOLIDATED_ROOT",
+    os.path.join(SRC_ROOT, "training", "data", "consolidated_risk_v1"),
+)
+EXTERNAL_ROOT = os.path.join(SRC_ROOT, "external-data")
 SEED = 42
 TEST_RATIO = 0.10
 
@@ -184,9 +195,9 @@ def read_lsan(path):
 
 # ---------- 主流程 ----------
 raw = []
-raw += read_psysuicide(f"{SRC_ROOT}/data/external/supplement/PsySUICIDE/train.json", "train")
-raw += read_psysuicide(f"{SRC_ROOT}/data/external/supplement/PsySUICIDE/valid.json", "valid")
-raw += read_metaphor_v1(f"{SRC_ROOT}/data/external/supplement/metaphor_corpus_v1.jsonl")
+raw += read_psysuicide(f"{EXTERNAL_ROOT}/supplement/PsySUICIDE/train.json", "train")
+raw += read_psysuicide(f"{EXTERNAL_ROOT}/supplement/PsySUICIDE/valid.json", "valid")
+raw += read_metaphor_v1(f"{EXTERNAL_ROOT}/supplement/metaphor_corpus_v1.jsonl")
 raw += read_suicide_jsonl(f"{SRC_ROOT}/data/suicide/suicide_train.jsonl", "suicide_train")
 raw += read_suicide_jsonl(f"{SRC_ROOT}/data/suicide/suicide_val.jsonl", "suicide_val")
 raw += read_suicide_csv(f"{SRC_ROOT}/data/suicide/suicide_train_LLM.csv", "suicide_train_llm")
@@ -328,22 +339,24 @@ stats.update({
 
 manifest = {
     "build_time": datetime.datetime.now().isoformat(timespec="seconds"),
-    "source_root": SRC_ROOT,
-    "output_dir": OUT_DIR,
+    "source_root": "${AEGIS_TRAINING_ROOT}",
+    "project_root": "${AEGIS_PROJECT_ROOT}",
+    "project_corpus": "${AEGIS_PROJECT_CORPUS}",
+    "output_dir": "${AEGIS_CONSOLIDATED_ROOT}",
     "included_sources": {
-        "PsySUICIDE.train": "D:/AegisTraining/data/external/supplement/PsySUICIDE/train.json",
-        "PsySUICIDE.valid": "D:/AegisTraining/data/external/supplement/PsySUICIDE/valid.json",
-        "metaphor_corpus_v1": "D:/AegisTraining/data/external/supplement/metaphor_corpus_v1.jsonl",
-        "suicide_messages.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}.jsonl",
-        "suicide_csv.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}_LLM.csv",
-        "LSAN": "D:/AegisTraining/data/suicide/LSAN.csv",
+        "PsySUICIDE.train": "${AEGIS_TRAINING_ROOT}/external-data/supplement/PsySUICIDE/train.json",
+        "PsySUICIDE.valid": "${AEGIS_TRAINING_ROOT}/external-data/supplement/PsySUICIDE/valid.json",
+        "metaphor_corpus_v1": "${AEGIS_TRAINING_ROOT}/external-data/supplement/metaphor_corpus_v1.jsonl",
+        "suicide_messages.train/val": "${AEGIS_TRAINING_ROOT}/data/suicide/suicide_{train,val}.jsonl",
+        "suicide_csv.train/val": "${AEGIS_TRAINING_ROOT}/data/suicide/suicide_{train,val}_LLM.csv",
+        "LSAN": "${AEGIS_TRAINING_ROOT}/data/suicide/LSAN.csv",
     },
     "excluded_sources": {
-        "data/external/SupervisedVsLLM-EfficacyEval/*": "与 data/suicide 等副本重复，已通过跨文件去重覆盖，不重复读取",
+        "external-data/SupervisedVsLLM-EfficacyEval/*": "与 data/suicide 等副本重复，已通过跨文件去重覆盖，不重复读取",
         "data/cognitive distortion/*": "认知歪曲 12 分类任务，非自杀风险识别，单独训练目标",
         "data/SocialCD-3k/*": "同上（Social Cognition Distortion，认知歪曲任务）",
         "distill_psychology-10k-r1.json": "心理咨询对话生成蒸馏集，无风险标签，属不同训练目标",
-        "data/risk_sft_v1|v2|v2_round2|v3": "项目 prepare 已派生的 SFT 集，避免重复计数",
+        "data/archive/risk_sft_v1|v2|v2_round2|v3": "项目 prepare 已派生的历史 SFT 集，避免重复计数",
     },
     "schema_per_sample": ["id", "text", "risk_level", "reason", "source",
                            "source_detail", "labels_raw", "speaker_scope", "metaphor_flag", "split"],
@@ -364,10 +377,10 @@ readme = f"""# consolidated_risk_v1 — 统一风险识别训练/测试集
 - **suicide 原始集** (`data/suicide/` 下 jsonl/csv/LSAN)：二分类高/低风险
 
 ## 来源（已排除，文档记录）
-- 外部仓库重复副本 (`data/external/SupervisedVsLLM-EfficacyEval/*`)：与 data/suicide 同源，靠去重覆盖
+- 外部仓库重复副本 (`external-data/SupervisedVsLLM-EfficacyEval/*`)：与 data/suicide 同源，靠去重覆盖
 - 认知歪曲集 (`cognitive distortion` / `SocialCD-3k`)：12 分类任务，非风险识别
 - 心理咨询生成集 (`distill_psychology-10k-r1.json`)：无风险标签，属生成目标
-- 已派生 SFT 集 (`risk_sft_v1/v2/v2_round2/v3`)：避免重复计数
+- 已派生历史 SFT 集 (`data/archive/risk_sft_v1/v2/v2_round2/v3`)：避免重复计数
 
 ## 处理步骤
 1. 统一读取为多源记录；2. 剔除空/过短/纯符号/未知风险样本；

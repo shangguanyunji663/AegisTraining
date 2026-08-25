@@ -642,7 +642,7 @@ def main() -> int:
     parser.add_argument("--campus-medium", type=Path,
                         default=TRAIN_ROOT / "training" / "data" / "authored" / "campus_medium_v7.jsonl")
     parser.add_argument("--distill-path", type=Path,
-                        default=TRAIN_ROOT / "distill_psychology-10k-r1.json")
+                        default=TRAIN_ROOT / "data" / "archive" / "distill_psychology-10k-r1.json")
     parser.add_argument("--distill-limit", type=int, default=200)
     args = parser.parse_args()
 

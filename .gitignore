@@ -32,8 +32,12 @@ uv.lock
 *.secret
 
 # Training data and generated datasets
-/data/
-/data/**
+/data/*
+!/data/archive/
+/data/archive/*
+!/data/archive/README.md
+/external-data/
+/external-data/**
 /distill_psychology-10k-r1.json
 training/data/generated/
 training/data/derived/

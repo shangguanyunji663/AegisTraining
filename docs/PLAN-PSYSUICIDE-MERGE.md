@@ -1,8 +1,8 @@
-# PsySUICIDE × 现有风险 SFT 数据合并执行计划（待审批）
+# [Archived] PsySUICIDE × 现有风险 SFT 数据合并执行计划
 
-> 状态：**计划阶段，未执行。** 本文件仅给出分析、筛选清洗方案、冲突处理策略与成本耗时估算。
-> 任何数据合并、脚本改写、训练运行均需在你批准后启动。
-> 生成时间：2026-08-22
+> 状态：**历史归档，不再作为待执行计划。** 本文件保留 2026-08-22 的数据分析、筛选清洗方案、冲突处理策略与成本估算，仅用于审计和历史背景。
+> 当前推荐流程已经改为 `training/data/consolidated_risk_v1` → `training/scripts/prepare_risk_sft_v4.py` → v9 训练/评测；本文提出的 `load_psysuicide_candidate_pool()` 方案未实施，也不应作为当前开发任务入口。
+> 生成时间：2026-08-22；归档说明：2026-08-25
 
 ---
 
@@ -17,7 +17,7 @@
 | 标注质量 | 人工标注；`labels` 与 `label` 向量 **0 处不一致** | 多为弱监督映射（SocialCD/认知歪曲） |
 | 文本重叠 | 与已有 SFT-user 仅 **1** 条；与 round2 **0** 条 | — |
 
-**位置说明**：你给定的 `...\PsySUICIDE\原始数据集` 子目录不存在；实际数据文件直接位于 `D:\AegisTraining\data\external\supplement\PsySUICIDE\` 下（train/valid/test.json + README.md）。已按实际路径读取。
+**位置说明**：你给定的 `...\PsySUICIDE\原始数据集` 子目录不存在；实际数据文件直接位于 `D:\AegisTraining\external-data\supplement\PsySUICIDE\` 下（train/valid/test.json + README.md）。已按实际路径读取。
 
 **当前验收瓶颈**（来自 `reports/risk-qlora-transformers-eval-final.json`）：唯一未过门槛的是
 `implicit_high_new_hits_at_least_4 = False`（规则基线命中 13/25，QLoRA 仅新增 3 条，需 ≥4 条）。
@@ -80,7 +80,7 @@
 ## 3. 合并后数据结构
 
 **新增目录**（保留 v2 作回归基线，符合项目 A/B 与"不覆盖"惯例）：
-`D:\AegisTraining\data\risk_sft_v3\`
+`D:\AegisTraining\data\archive\risk_sft_v3\`
 - `train.jsonl` — ChatML，均衡（默认 500·500·500，见 §7）
 - `dev.jsonl` — ChatML，均衡（默认 40·40·40 或按比例）
 - `manifest.json` — 含 schema_version、映射表、各级/各 source 计数、provenance、去重与泄漏检查结果

@@ -8,10 +8,10 @@
 - **suicide 原始集** (`data/suicide/` 下 jsonl/csv/LSAN)：二分类高/低风险
 
 ## 来源（已排除，文档记录）
-- 外部仓库重复副本 (`data/external/SupervisedVsLLM-EfficacyEval/*`)：与 data/suicide 同源，靠去重覆盖
+- 外部仓库重复副本 (`external-data/SupervisedVsLLM-EfficacyEval/*`)：与 data/suicide 同源，靠去重覆盖
 - 认知歪曲集 (`cognitive distortion` / `SocialCD-3k`)：12 分类任务，非风险识别
 - 心理咨询生成集 (`distill_psychology-10k-r1.json`)：无风险标签，属生成目标
-- 已派生 SFT 集 (`risk_sft_v1/v2/v2_round2/v3`)：避免重复计数
+- 已派生历史 SFT 集 (`data/archive/risk_sft_v1/v2/v2_round2/v3`)：避免重复计数
 
 ## 处理步骤
 1. 统一读取为多源记录；2. 剔除空/过短/纯符号/未知风险样本；

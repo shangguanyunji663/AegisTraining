@@ -43,30 +43,57 @@ LoRA r=8, alpha=16, dropout=0.05
 
 当前机器已确认具备 RTX 4060 Laptop GPU（8188 MiB）。隔离训练环境位于 `D:\AegisTraining\envs\qlora-qwen35`，已验证 CUDA、BF16 与 `bitsandbytes` 4-bit 训练路径；不得向生产依赖回写这些包。
 
-## 初始化顺序
+## 初始化环境
+
+以下环境初始化只需执行一次。训练依赖必须与生产项目隔离：
 
 ```bash
-# 1. 在新的 Python 3.11 隔离环境中安装 CUDA PyTorch。
-#    请按 PyTorch 官网为本机驱动选择 CUDA wheel；不要把 torch 写入生产 requirements.txt。
+# Python 3.11 + 与本机 CUDA/驱动匹配的 PyTorch wheel
 python -m pip install --upgrade pip
 python -m pip install -r training/requirements-qlora.txt
 
-# 2. 把大文件放到 D 盘训练根目录。
 set HF_HOME=D:\AegisTraining\hf-cache
-set AEGIS_TRAIN_ROOT=D:\AegisTraining
+set AEGIS_TRAINING_ROOT=D:\AegisTraining
+set AEGIS_PROJECT_ROOT=D:\PythonProject\aegis-psych-agent
+set AEGIS_PROJECT_CORPUS=%AEGIS_PROJECT_ROOT%\eval\fixtures\representative_corpus.json
+```
 
-# 3. 通过官方下载工具获得固定 revision 的 safetensors 快照后，先做本地验证。
-python -m aegis_training.base_model_gate --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base
+## 当前推荐流程：v4/v9 consolidated
 
-# 4. 构建隔离数据；默认加入 committed project corpus 的 base 层，stress 层永久排除。
-python scripts/prepare_risk_sft.py --output-root D:\AegisTraining\data\risk_sft_v2
+当前主流程不重新读取旧 v2/v3 候选池，而是使用已审查的 `training/data/consolidated_risk_v1`，生成当前 v9 数据并训练：
 
-# 5. 先执行仅加载模型/构造 LoRA 的 CUDA dry run，再运行训练。
-python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\risk_sft_v2 --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base --dry-run
-python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\risk_sft_v2 --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base
+```bat
+python training\scripts\prepare_risk_sft_v4.py ^
+  --consolidated-root "%AEGIS_TRAINING_ROOT%\training\data\consolidated_risk_v1" ^
+  --corpus "%AEGIS_PROJECT_CORPUS%" ^
+  --output-root "%AEGIS_TRAINING_ROOT%\data\risk_sft_v9"
 
-# 6. 合并已经训练完成且仍未接入生产的 adapter；此步骤只输出 safetensors 快照。
-python scripts/merge_risk_qlora.py --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base --adapter-dir D:\AegisTraining\checkpoints\aegis-risk-qwen3.5-2b-v1\adapter --output-dir D:\AegisTraining\exports\aegis-risk-qwen3.5-2b-v1-merged
+python training\scripts\train_risk_qlora.py ^
+  --data-root "%AEGIS_TRAINING_ROOT%\data\risk_sft_v9" ^
+  --snapshot-dir "%AEGIS_TRAINING_ROOT%\models\Qwen3.5-2B-Base" ^
+  --dry-run
+
+python training\scripts\train_risk_qlora.py ^
+  --data-root "%AEGIS_TRAINING_ROOT%\data\risk_sft_v9" ^
+  --snapshot-dir "%AEGIS_TRAINING_ROOT%\models\Qwen3.5-2B-Base"
+
+python training\scripts\merge_risk_qlora.py ^
+  --snapshot-dir "%AEGIS_TRAINING_ROOT%\models\Qwen3.5-2B-Base" ^
+  --adapter-dir "%AEGIS_TRAINING_ROOT%\checkpoints\aegis-risk-qwen3.5-2b-v9\adapter" ^
+  --output-dir "%AEGIS_TRAINING_ROOT%\exports\aegis-risk-qwen3.5-2b-v9-merged"
+```
+
+评测和推理服务入口也统一从本目录的 `scripts/` 运行，结果写入根 `reports/`。
+
+## 历史复现流程：v2/v3 legacy
+
+`prepare_risk_sft.py`、`tools/build_risk_sft_v3.py`、`data/archive/risk_sft_v1-v3` 和 `external-data/` 只用于复现旧实验或重建历史数据，不是当前推荐入口。若确实需要复现旧版本：
+
+```bat
+python training\scripts\prepare_risk_sft.py ^
+  --source-root "%AEGIS_TRAINING_ROOT%\external-data\SupervisedVsLLM-EfficacyEval" ^
+  --project-root "%AEGIS_PROJECT_ROOT%" ^
+  --output-root "%AEGIS_TRAINING_ROOT%\data\archive\risk_sft_v2"
 ```
 
 训练脚本会在量化后的真实线性层（包括 `bitsandbytes.Linear4bit`）上发现 LoRA target module；若所装 Transformers 无法用 `AutoModelForCausalLM` 加载官方 Qwen3.5 文本路径，或模型仍暴露视觉模块，会失败而不会悄然训练错误对象。训练使用 epoch 评估、`eval_loss` 最优模型选择与配置中的 early stopping patience。

@@ -1,6 +1,7 @@
 import json, os, collections, re, statistics
 
-PSY = "D:/AegisTraining/data/external/supplement/PsySUICIDE"
+TRAIN_ROOT = os.environ.get("AEGIS_TRAINING_ROOT", "D:/AegisTraining")
+PSY = os.path.join(TRAIN_ROOT, "external-data", "supplement", "PsySUICIDE")
 def load_json(p):
     with open(p, encoding="utf-8") as f:
         return json.load(f)
@@ -66,7 +67,7 @@ def load_jsonl(p):
     return out
 
 print("### EXISTING risk_sft_v2/train.jsonl messages structure ###")
-sft = load_jsonl("D:/AegisTraining/data/risk_sft_v2/train.jsonl")
+sft = load_jsonl(os.path.join(TRAIN_ROOT, "data", "archive", "risk_sft_v2", "train.jsonl"))
 role_counter = collections.Counter()
 assistant_levels = collections.Counter()
 samples_full = []
@@ -91,7 +92,7 @@ print()
 
 # ---------- round2 ----------
 print("### EXISTING risk_sft_v2_round2/synthetic_implicit_high.jsonl ###")
-r2 = load_jsonl("D:/AegisTraining/data/risk_sft_v2_round2/synthetic_implicit_high.jsonl")
+r2 = load_jsonl(os.path.join(TRAIN_ROOT, "data", "archive", "risk_sft_v2_round2", "synthetic_implicit_high.jsonl"))
 rc = collections.Counter()
 sc = collections.Counter()
 for r in r2:

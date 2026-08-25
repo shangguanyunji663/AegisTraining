@@ -62,16 +62,17 @@ def inspect_jsonl(path, name):
     print()
     return None
 
-base = "D:/AegisTraining/data"
+base = os.environ.get("AEGIS_TRAINING_ROOT", "D:/AegisTraining") + "/data"
+external_base = os.environ.get("AEGIS_TRAINING_ROOT", "D:/AegisTraining") + "/external-data"
 # NEW dataset
 for split in ["train", "valid", "test"]:
-    p = os.path.join(base, "external/supplement/PsySUICIDE", f"{split}.json")
+    p = os.path.join(external_base, "supplement/PsySUICIDE", f"{split}.json")
     if os.path.exists(p):
         inspect_json_array(p, f"PsySUICIDE/{split}.json")
 
 # EXISTING datasets
 for d in ["risk_sft_v1", "risk_sft_v2", "risk_sft_v2_round2"]:
-    dp = os.path.join(base, d)
+    dp = os.path.join(base, "archive", d)
     if os.path.isdir(dp):
         for fn in sorted(os.listdir(dp)):
             if fn.endswith(".jsonl"):

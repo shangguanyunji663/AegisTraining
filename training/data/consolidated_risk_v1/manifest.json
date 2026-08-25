@@ -1,21 +1,23 @@
 {
   "build_time": "2026-08-22T19:32:27",
-  "source_root": "D:/AegisTraining",
-  "output_dir": "D:/PythonProject/aegis-psych-agent/training/data/consolidated_risk_v1",
+  "source_root": "${AEGIS_TRAINING_ROOT}",
+  "project_root": "${AEGIS_PROJECT_ROOT}",
+  "project_corpus": "${AEGIS_PROJECT_CORPUS}",
+  "output_dir": "${AEGIS_CONSOLIDATED_ROOT}",
   "included_sources": {
-    "PsySUICIDE.train": "D:/AegisTraining/data/external/supplement/PsySUICIDE/train.json",
-    "PsySUICIDE.valid": "D:/AegisTraining/data/external/supplement/PsySUICIDE/valid.json",
-    "metaphor_corpus_v1": "D:/AegisTraining/data/external/supplement/metaphor_corpus_v1.jsonl",
-    "suicide_messages.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}.jsonl",
-    "suicide_csv.train/val": "D:/AegisTraining/data/suicide/suicide_{train,val}_LLM.csv",
-    "LSAN": "D:/AegisTraining/data/suicide/LSAN.csv"
+    "PsySUICIDE.train": "${AEGIS_TRAINING_ROOT}/external-data/supplement/PsySUICIDE/train.json",
+    "PsySUICIDE.valid": "${AEGIS_TRAINING_ROOT}/external-data/supplement/PsySUICIDE/valid.json",
+    "metaphor_corpus_v1": "${AEGIS_TRAINING_ROOT}/external-data/supplement/metaphor_corpus_v1.jsonl",
+    "suicide_messages.train/val": "${AEGIS_TRAINING_ROOT}/data/suicide/suicide_{train,val}.jsonl",
+    "suicide_csv.train/val": "${AEGIS_TRAINING_ROOT}/data/suicide/suicide_{train,val}_LLM.csv",
+    "LSAN": "${AEGIS_TRAINING_ROOT}/data/suicide/LSAN.csv"
   },
   "excluded_sources": {
-    "data/external/SupervisedVsLLM-EfficacyEval/*": "与 data/suicide 等副本重复，已通过跨文件去重覆盖，不重复读取",
+    "external-data/SupervisedVsLLM-EfficacyEval/*": "与 data/suicide 等副本重复，已通过跨文件去重覆盖，不重复读取",
     "data/cognitive distortion/*": "认知歪曲 12 分类任务，非自杀风险识别，单独训练目标",
     "data/SocialCD-3k/*": "同上（Social Cognition Distortion，认知歪曲任务）",
     "distill_psychology-10k-r1.json": "心理咨询对话生成蒸馏集，无风险标签，属不同训练目标",
-    "data/risk_sft_v1|v2|v2_round2|v3": "项目 prepare 已派生的 SFT 集，避免重复计数"
+    "data/archive/risk_sft_v1|v2|v2_round2|v3": "项目 prepare 已派生的 SFT 集，避免重复计数"
   },
   "schema_per_sample": [
     "id",

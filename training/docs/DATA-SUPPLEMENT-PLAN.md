@@ -13,7 +13,7 @@
 | 验收门槛 | 并集在 `suicidal_implicit` 上**新增 ≥ 4 条**（即 ≥ 17 / 25） | `eval_risk_qlora.py` `_acceptance_gate` L196-198 |
 | 当前被规则与 QLoRA **双双漏检** | 9 条（12 条规则漏检中 QLoRA 仅补 3） | 同上推导 |
 | 项目 `base` 层（已进训练）高风险样本 | 5 条，全部 `suicidal_explicit`（corp-101..105），**隐喻/隐式 0 条** | `representative_corpus.json` base 层 |
-| 现有训练 high 桶构成 | 240 high / 720 train；来源 hongzhiq-suicide 413、socialcd 270、cognitive 10、project-base 27 | `D:\AegisTraining\data\risk_sft_v2\manifest.json` |
+| 现有训练 high 桶构成 | 240 high / 720 train；来源 hongzhiq-suicide 413、socialcd 270、cognitive 10、project-base 27 | `D:\AegisTraining\data\archive\risk_sft_v2\manifest.json` |
 
 **核心结论**：当前训练集几乎没有"项目域隐喻式隐式高危"样本——项目自身的隐喻样本全部在 `stress` holdout（依法不可训练），外部源（hongzhi/socialcd/cognitive）的弱标签映射依赖显式关键词（`source_ingest.py` `SELF_HIGH_PATTERN`），隐喻样本易被降级为 medium/low，覆盖薄弱。这正是 QLoRA 在 25 条隐喻上只加 3 条的根因。
 
@@ -55,7 +55,7 @@
 - **2a 扩展已批准仓库**：对 `SupervisedVsLLM-EfficacyEval@78fb4d1` 做更细粒度抽取——除现有 hongzhi suicide / socialcd / cognitive 外，补充其内更多**隐喻/委婉/暗示**类正样本，并放宽弱映射使其隐喻样本保留为 high（而非被 `SELF_HIGH_PATTERN` 漏掉降级）。
 - **2b 新增公开语料（个人研究、许可证已豁免）**：引入更多中文心理困扰/自杀意念隐喻语料（如 CLPsych/CAMS 风格或公开社交媒体隐喻数据集），仅取隐喻/隐式高危子集，弱映射到 high。
 - **2c 困难负样本（防止误报）**：补充 ~20–30 条"隐喻相邻但非高危"的 low/medium 干扰（如第三人称"朋友说想消失"、良性"好累想睡一觉"），以满足 `third_person_new_high_fpr ≤ 1`、`non_high_to_high_fpr ≤ 规则+2pp` 两道精度门槛。
-- 落点：`D:\AegisTraining\data\external\supplement\`。
+- 落点：`D:\AegisTraining\external-data\supplement\`。
 
 ## 4. 补充数量预估
 
@@ -83,23 +83,23 @@
 # 0. 锁定分支与环境
 git checkout feat/qlora-risk-training
 set HF_HOME=D:\AegisTraining\hf-cache
-set AEGIS_TRAIN_ROOT=D:\AegisTraining
+set AEGIS_TRAINING_ROOT=D:\AegisTraining
 
-# 1. 数据收集 → 落到 D:\AegisTraining\data\external\supplement\ 与 training/data/supplement_project.jsonl
+# 1. 数据收集 → 落到 D:\AegisTraining\external-data\supplement\ 与 training/data/supplement_project.jsonl
 #    （按第 3、5 节标准，经 leakage_guard 预检）
 
 # 2. 扩展 source_ingest / prepare 以纳入补充源（如需 --metaphor-reserve 则小改 prepare_risk_sft.py）
 
 # 3. 重建隔离数据（v3），自动执行 holdout 泄漏防护
 python scripts/prepare_risk_sft.py \
-  --source-root D:\AegisTraining\data\external\supplement \
-  --output-root D:\AegisTraining\data\risk_sft_v3 \
+  --source-root D:\AegisTraining\external-data\supplement \
+  --output-root D:\AegisTraining\data\archive\risk_sft_v3 \
   --train-size 840 --dev-size 140
 
 # 4. CUDA dry-run 后正式训练（沿用 risk_qlora_4060.yaml）
-python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\risk_sft_v3 \
+python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\archive\risk_sft_v3 \
   --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base --dry-run
-python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\risk_sft_v3 \
+python scripts/train_risk_qlora.py --data-root D:\AegisTraining\data\archive\risk_sft_v3 \
   --snapshot-dir D:\AegisTraining\models\Qwen3.5-2B-Base
 
 # 5. 合并 adapter → 新研究工件（不替换生产模型/规则通道）

@@ -8,14 +8,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 import unicodedata
 from collections import Counter
 from pathlib import Path
 
-PROJECT_ROOT = Path(r"D:\PythonProject\aegis-psych-agent")
-TRAINING_SRC = PROJECT_ROOT / "training" / "src"
+TRAINING_ROOT = Path(os.environ.get("AEGIS_TRAINING_ROOT", Path(__file__).resolve().parents[1])).resolve()
+PROJECT_ROOT = Path(os.environ.get("AEGIS_PROJECT_ROOT", r"D:\PythonProject\aegis-psych-agent")).resolve()
+TRAINING_SRC = TRAINING_ROOT / "training" / "src"
 if str(TRAINING_SRC) not in sys.path:
     sys.path.insert(0, str(TRAINING_SRC))
 
@@ -287,11 +289,11 @@ def verify_outputs(output_root: Path, train_size: int, dev_size: int) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build risk_sft_v3 dataset")
-    parser.add_argument("--source-root", type=Path, default=Path("D:/AegisTraining/data/external/SupervisedVsLLM-EfficacyEval"))
+    parser.add_argument("--source-root", type=Path, default=TRAINING_ROOT / "external-data" / "SupervisedVsLLM-EfficacyEval")
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
-    parser.add_argument("--synthetic-path", type=Path, default=Path("D:/AegisTraining/data/risk_sft_v2_round2/synthetic_implicit_high.jsonl"))
-    parser.add_argument("--metaphor-path", type=Path, default=Path("D:/AegisTraining/data/external/supplement/metaphor_corpus_v1.jsonl"))
-    parser.add_argument("--output-root", type=Path, default=Path("D:/AegisTraining/data/risk_sft_v3"))
+    parser.add_argument("--synthetic-path", type=Path, default=TRAINING_ROOT / "data" / "archive" / "risk_sft_v2_round2" / "synthetic_implicit_high.jsonl")
+    parser.add_argument("--metaphor-path", type=Path, default=TRAINING_ROOT / "external-data" / "supplement" / "metaphor_corpus_v1.jsonl")
+    parser.add_argument("--output-root", type=Path, default=TRAINING_ROOT / "data" / "archive" / "risk_sft_v3")
     parser.add_argument("--train-size", type=int, default=840)
     parser.add_argument("--dev-size", type=int, default=140)
     parser.add_argument("--seed", type=int, default=42)

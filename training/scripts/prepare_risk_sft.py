@@ -54,11 +54,11 @@ def stratified_split(samples: list[RiskSample], train_size: int, dev_size: int, 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Prepare isolated risk QLoRA SFT data")
-    parser.add_argument("--source-root", type=Path, default=TRAIN_ROOT / "data" / "external" / "SupervisedVsLLM-EfficacyEval")
+    parser.add_argument("--source-root", type=Path, default=TRAIN_ROOT / "external-data" / "SupervisedVsLLM-EfficacyEval")
     parser.add_argument("--project-root", type=Path, default=None, help="optional production checkout; only committed base fixtures are read")
     parser.add_argument("--holdout", type=Path, default=None, help="frozen stress fixture used for leakage checks")
     parser.add_argument("--without-project-base", action="store_true")
-    parser.add_argument("--output-root", type=Path, default=TRAIN_ROOT / "data" / "risk_sft_v2")
+    parser.add_argument("--output-root", type=Path, default=TRAIN_ROOT / "data" / "archive" / "risk_sft_v2")
     parser.add_argument("--train-size", type=int, default=720)
     parser.add_argument("--dev-size", type=int, default=120)
     parser.add_argument("--seed", type=int, default=42)
