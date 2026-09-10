@@ -1,5 +1,9 @@
 # QLoRA 隐式高危数据补充计划（验收冲刺）
 
+> 状态：**已执行并归档的历史计划**。本计划对应第一版（v1→v3）冲刺阶段，其"25 条隐喻 holdout（corp-106..130）/ 720→840 规模"口径为当时状态；当前冻结验收集已扩展为 stress 87 条，当前流程为 `consolidated_risk_v1 → prepare_risk_sft_v4.py → risk_sft_v9`（见 [training/README.md](../README.md) 与 [TRAINING-HISTORY-INDEX.md](../../reports/TRAINING-HISTORY-INDEX.md)）。
+> 文中引用的 `eval_risk_qlora.py` `_acceptance_gate` 自动门槛已随脚本重构移除：现行为"评测脚本自动产出指标，八项门槛由人工对照报告确认"（见 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) 第 7 节）。
+> 正文保留 2026-08-22 原貌，仅作审计与历史背景，不作为当前开发任务入口。
+
 > 分支约束：全部操作限定在 `feat/qlora-risk-training`。训练工件置于 `D:\AegisTraining\`（不进 Git）。
 > 状态：**计划稿**，待确认后执行。本文档不修改任何训练数据或代码。
 

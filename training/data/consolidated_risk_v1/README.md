@@ -46,5 +46,5 @@ consolidated_risk_v1/train.jsonl
 - 测试集：1456（high=375, medium=33, low=1048）
 
 ## 重要约定
-- 本测试集为**模型开发用 dev-test**，与冻结验收集（corp-106..130，由 `eval_risk_qlora.py` 使用）相互独立。
+- 本测试集为**模型开发用 dev-test**，与冻结验收集相互独立。冻结验收集现为项目 fixture `representative_corpus.json` 的 stress 87 条（由 `eval_risk_qlora.py` 使用）；本目录构建时的历史冻结范围是其 25 条隐喻子集（corp-106..130），即上文泄漏过滤的对象。
 - 验收前请勿将本集与冻结集混用，以免污染验收结论。
