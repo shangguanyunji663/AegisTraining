@@ -277,7 +277,8 @@ python training\scripts\serve_risk_qlora.py ^
 
 | 文档 | 适用读者 | 内容 |
 | :--- | :--- | :--- |
-| [`training/README.md`](training/README.md) | 所有人 | 操作主手册兼学习手册：背景、参数、训练、评测、服务、回滚、排障 |
+| [`training/README.md`](training/README.md) | 所有人 | 操作手册：环境、命令、参数、训练、评测、服务、回滚、排障 |
+| [`training/LEARNING-GUIDE.md`](training/LEARNING-GUIDE.md) | 新手 / 学习者 | 学习手册：概念从零讲起、易混淆点集中澄清、完整故事线、练习与自测 |
 | [`training/data/README.md`](training/data/README.md) | 数据 / 标注 | 数据格式、标签规范、来源追溯、holdout 规则 |
 | [`training/docs/REPRODUCIBILITY.md`](training/docs/REPRODUCIBILITY.md) | 复现 / 审计 | 可复现要求与证据记录规范 |
 | [`training/docs/SERVICE-RUNBOOK.md`](training/docs/SERVICE-RUNBOOK.md) | 运维 | QLoRA 推理服务运行手册 |
